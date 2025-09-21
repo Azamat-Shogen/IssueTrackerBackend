@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "app_user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,4 +26,6 @@ public class User {
     @Column(nullable = false)
     private  String role = "USER"; // Default value;
 
+    @OneToMany(mappedBy = "reportedBy", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Issue> issues;
 }
