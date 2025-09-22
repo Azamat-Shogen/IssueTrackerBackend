@@ -1,6 +1,7 @@
 package com.revature.IssueTrackerBackend.controller;
 
 import com.revature.IssueTrackerBackend.dto.JwtResponse;
+import com.revature.IssueTrackerBackend.dto.UserSummeryDTO;
 import com.revature.IssueTrackerBackend.entity.AppUser;
 import com.revature.IssueTrackerBackend.service.JwtService;
 import com.revature.IssueTrackerBackend.service.UserService;
@@ -55,19 +56,37 @@ public class UserController {
         }
     }
 
-
     //💧 USER ROUTES
-    // TODO: /user/profile // get mapping
+
+    @GetMapping("/user")
+    public ResponseEntity<UserSummeryDTO> getCurrentUser(Authentication authentication){
+        String username = authentication.getName();
+        UserSummeryDTO user = userService.getUserByUsername(username);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     //💧 ADMIN ROUTES
-    // TODO: /admin/profile get mapping
-    // TODO: /admin/users get mapping
-    // TODO: /admin/users{id} // delete mapping
+    @GetMapping("/admin")
+    public ResponseEntity<UserSummeryDTO> getAdminUser(Authentication authentication){
+        String username = authentication.getName();
+        UserSummeryDTO user = userService.getUserByUsername(username);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     @GetMapping("admin/users")
-    public ResponseEntity<List<AppUser>> getAllUsers(){
-        List<AppUser> users = userService.getAllUsers();
+    public ResponseEntity<List<UserSummeryDTO>> getAllUsers(){
+        List<UserSummeryDTO> users = userService.getUsersByRole("USER");
         return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/admin/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable long id) {
+        try{
+            userService.deleteUserById(id);
+            return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
+        } catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
 }
