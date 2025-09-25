@@ -2,6 +2,8 @@ package com.revature.IssueTrackerBackend.service;
 
 import com.revature.IssueTrackerBackend.dto.UserSummeryDTO;
 import com.revature.IssueTrackerBackend.entity.AppUser;
+import com.revature.IssueTrackerBackend.exceptions.InvalidInputException;
+import com.revature.IssueTrackerBackend.exceptions.UserAlreadyExistsException;
 import com.revature.IssueTrackerBackend.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,6 +49,13 @@ public class UserService implements UserDetailsService {
     }
 
     public AppUser saveUser(AppUser user){
+        if (userRepo.existsByUsername(user.getUsername())){
+            throw new UserAlreadyExistsException("User with username '" + user.getUsername() + "' already exists.");
+        }
+        if (user.getPassword().length() < 4) {
+            throw new InvalidInputException("Invalid password");
+        }
+        // can check for input validations with different exceptions
         user.setPassword(encoder.encode(user.getPassword()));
         return userRepo.save(user);
     }

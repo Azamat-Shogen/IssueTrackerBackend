@@ -12,12 +12,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
@@ -32,13 +34,13 @@ public class UserController {
     }
 
     //💧 PUBLIC ROUTES
-    @PostMapping("/register")
-    public ResponseEntity<AppUser> register(@RequestBody AppUser user){
+    @PostMapping("/auth/register")
+    public ResponseEntity<String> register(@RequestBody AppUser user){
         AppUser savedUser = userService.saveUser(user);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AppUser user) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -46,7 +48,14 @@ public class UserController {
             );
 
             if (authentication.isAuthenticated()) {
-                String token = jwtService.generateToken(user.getUsername());
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+                String role = userDetails.getAuthorities().stream()
+                        .findFirst()
+                        .map(GrantedAuthority::getAuthority)
+                        .orElse("USER");
+
+                String token = jwtService.generateToken(user.getUsername(), role);
                 return ResponseEntity.ok(new JwtResponse(token));
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed");
