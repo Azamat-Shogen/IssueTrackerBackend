@@ -6,8 +6,8 @@
 ---
 
 ## Project Summary
-IssueTracker is a simple Campus/Apartment Maintenance Reporting System.
-Users can report maintenance issues, and admins (maintenance staff) can view and resolve them.
+IssueTracker is a simple issue Reporting System.
+Users can report issues, and admins (management) can view and resolve them.
 
 ### MVP Scope
 - Backend: Spring Boot + JPA + H2 (or Postgres)
